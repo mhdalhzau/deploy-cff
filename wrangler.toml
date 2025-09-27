@@ -15,22 +15,22 @@ NODE_ENV = "production"
 APP_NAME = "Staff Management System"
 APP_VERSION = "1.0.0"
 
-# Database binding for D1 (auto-created on first deploy)
-[[d1_databases]]
-binding = "DB"
-database_name = "staff_management_db"
-# database_id will be auto-generated and updated by setup script
+# Database binding for D1 (commented out until resources are created)
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "staff_management_db"
+# database_id = "" # Run 'npm run setup' to auto-generate
 
-# KV binding for session storage (auto-created on first deploy)  
-[[kv_namespaces]]
-binding = "SESSIONS"
-# id will be auto-generated and updated by setup script
-# preview_id will be auto-generated and updated by setup script
+# KV binding for session storage (commented out until resources are created)  
+# [[kv_namespaces]]
+# binding = "SESSIONS"
+# id = "" # Run 'npm run setup' to auto-generate
+# preview_id = "" # Run 'npm run setup' to auto-generate
 
-# R2 binding for file storage (optional, auto-created if needed)
-[[r2_buckets]]
-binding = "ASSETS"
-bucket_name = "staff-management-assets"
+# R2 binding for file storage (commented out until bucket is created)
+# [[r2_buckets]]
+# binding = "ASSETS"  
+# bucket_name = "staff-management-assets"
 
 # Auto-deployment environments
 [env.development]
