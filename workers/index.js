@@ -187,7 +187,7 @@ async function handleLogin(request, env) {
     }
     
     // Query D1 database for user
-    if (!db) {
+    if (!env.DB) {
       return new Response(JSON.stringify({ 
         message: 'Database not configured' 
       }), {
@@ -198,7 +198,7 @@ async function handleLogin(request, env) {
     
     try {
       // Query user by email (preserving varchar UUID ID type)
-      const user = await db.prepare('SELECT user_id, email, password, name, role FROM users WHERE email = ?')
+      const user = await env.DB.prepare('SELECT user_id, email, password, name, role FROM users WHERE email = ?')
         .bind(email)
         .first();
       
@@ -224,7 +224,7 @@ async function handleLogin(request, env) {
       
       // Create session if KV available
       let sessionId = null;
-      if (sessions) {
+      if (env.SESSIONS) {
         sessionId = crypto.randomUUID();
         const sessionData = {
           userId: user.user_id, // Preserving varchar UUID type
@@ -234,7 +234,7 @@ async function handleLogin(request, env) {
           createdAt: Date.now()
         };
         
-        await sessions.put(`session:${sessionId}`, JSON.stringify(sessionData), {
+        await env.SESSIONS.put(`session:${sessionId}`, JSON.stringify(sessionData), {
           expirationTtl: 24 * 60 * 60 // 24 hours
         });
       }
