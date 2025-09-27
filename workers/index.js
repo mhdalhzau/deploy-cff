@@ -3,9 +3,6 @@
  * Adapts Express.js application to Workers runtime
  */
 
-// Import static assets (will be bundled)
-import staticAssets from '../dist/public';
-
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
