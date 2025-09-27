@@ -1,4 +1,4 @@
-name = "posmarketlokal"
+name = "staff-management-system"
 main = "dist/workers/index.js"
 compatibility_date = "2025-01-01"
 workers_dev = true
