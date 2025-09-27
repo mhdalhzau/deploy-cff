@@ -1,0 +1,122 @@
+name: Template Repository Setup
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'README.md'
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    if: github.repository != 'original-repo/staff-management-system'
+    name: Setup new repository from template
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Customize for new repository
+        run: |
+          # Update repository-specific names
+          REPO_NAME=$(echo ${{ github.repository }} | cut -d'/' -f2)
+          
+          # Update wrangler.toml with repository name
+          sed -i "s/staff-management-system/$REPO_NAME/g" wrangler.toml
+          
+          # Update package.json name
+          sed -i "s/\"staff-management-system\"/\"$REPO_NAME\"/g" package.json
+          
+          # Create customized README
+          cat > README.md << 'EOF'
+          # $REPO_NAME
+          
+          ## 🚀 Quick Deploy to Cloudflare
+          
+          ```bash
+          npm run deploy
+          ```
+          
+          **That's it!** Your app will be live in ~2 minutes.
+          
+          See [DEPLOY.md](DEPLOY.md) for detailed instructions.
+          
+          ## Features
+          - ✅ Multi-role management (Staff/Manager/Admin)
+          - ✅ Attendance tracking
+          - ✅ Sales reporting 
+          - ✅ Payroll processing
+          - ✅ Proposal management
+          - ✅ Real-time WebSocket updates
+          - ✅ MySQL/D1 database support
+          
+          ## Tech Stack
+          - **Frontend**: React + TypeScript + Tailwind CSS
+          - **Backend**: Express.js + Cloudflare Workers
+          - **Database**: MySQL (Replit) / D1 (Cloudflare)
+          - **Deployment**: One-click Cloudflare deployment
+          
+          Built with ❤️ using Replit + Cloudflare
+          EOF
+          
+          # Replace repo name placeholder
+          sed -i "s/\$REPO_NAME/$REPO_NAME/g" README.md
+      
+      - name: Commit customizations
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "🎯 Customize repository for ${{ github.repository }}"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create deployment instructions issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚀 Ready to Deploy!',
+              body: `## Welcome to your Staff Management System! 
+
+              Your repository is ready for deployment. Here's what to do next:
+
+              ### Option 1: One-Click Deploy (Recommended)
+              1. Run: \`npm run deploy\`
+              2. That's it! Your app will be live in ~2 minutes.
+
+              ### Option 2: GitHub Actions Deploy
+              1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com) 
+              2. Get your API token: Profile → API Tokens → Create Token
+              3. Add to GitHub Secrets: Settings → Secrets → \`CLOUDFLARE_API_TOKEN\`
+              4. Push any code - auto-deployment will trigger!
+
+              ### Your URLs will be:
+              - **Production**: https://${context.repo.repo}-prod.workers.dev
+              - **Staging**: https://${context.repo.repo}-staging.workers.dev
+
+              ### Resources Auto-Created:
+              - ✅ D1 Database
+              - ✅ KV Storage  
+              - ✅ Workers Deployment
+              - ✅ GitHub Actions CI/CD
+
+              🎉 **Deploy time**: ~2 minutes from zero to hero!
+
+              See [DEPLOY.md](DEPLOY.md) for detailed instructions.
+              `
+            });
+            console.log('Created deployment instructions issue:', issue.data.number);

@@ -1,0 +1,49 @@
+name = "staff-management-system"
+main = "dist/workers/index.js"
+compatibility_date = "2025-01-01"
+workers_dev = true
+
+# Auto-build configuration for seamless deployment
+[build]
+command = "npm run build:workers"
+cwd = "."
+watch_dir = ["server", "shared", "client/src", "workers"]
+
+# Environment variables (production ready)
+[vars]
+NODE_ENV = "production"
+APP_NAME = "Staff Management System"
+APP_VERSION = "1.0.0"
+
+# Database binding for D1 (auto-created on first deploy)
+[[d1_databases]]
+binding = "DB"
+database_name = "staff_management_db"
+# database_id will be auto-generated and updated by setup script
+
+# KV binding for session storage (auto-created on first deploy)  
+[[kv_namespaces]]
+binding = "SESSIONS"
+# id will be auto-generated and updated by setup script
+# preview_id will be auto-generated and updated by setup script
+
+# R2 binding for file storage (optional, auto-created if needed)
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "staff-management-assets"
+
+# Auto-deployment environments
+[env.development]
+name = "staff-management-dev"
+workers_dev = true
+vars = { NODE_ENV = "development" }
+
+[env.staging]
+name = "staff-management-staging"
+workers_dev = true
+vars = { NODE_ENV = "staging" }
+
+[env.production]
+name = "staff-management-prod"
+workers_dev = false
+vars = { NODE_ENV = "production" }
