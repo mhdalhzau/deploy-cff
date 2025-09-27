@@ -46,6 +46,6 @@ workers_dev = true
 vars = { NODE_ENV = "staging" }
 
 [env.production]
-name = "staff-management-prod"
+name = "staff-management-system"
 workers_dev = false
 vars = { NODE_ENV = "production", APP_NAME = "Staff Management System", APP_VERSION = "1.0.0" }
