@@ -67,10 +67,15 @@ async function setupCloudflare() {
       console.log('✅ D1 database already exists');
       dbId = existingDb.uuid;
     } else {
-      const dbOutput = exec('wrangler d1 create staff_management_db --json', 'Creating D1 database');
-      const dbResult = JSON.parse(dbOutput);
-      dbId = dbResult.database_id;
-      console.log(`✅ D1 database created: ${dbId}`);
+      const dbOutput = exec('wrangler d1 create staff_management_db', 'Creating D1 database');
+      // Extract database ID from output (format: "✅ Successfully created DB 'staff_management_db' with id: UUID")
+      const dbIdMatch = dbOutput.match(/id:\s*([a-f0-9-]+)/);
+      if (dbIdMatch) {
+        dbId = dbIdMatch[1];
+        console.log(`✅ D1 database created: ${dbId}`);
+      } else {
+        throw new Error('Could not extract database ID from output');
+      }
     }
   } catch (error) {
     console.error('❌ Failed to setup D1 database');
@@ -92,13 +97,22 @@ async function setupCloudflare() {
       const previewKv = namespaces.find(ns => ns.title.includes('SESSIONS') && ns.title.includes('preview'));
       kvPreviewId = previewKv ? previewKv.id : existingKv.id;
     } else {
-      const kvOutput = exec('wrangler kv:namespace create "SESSIONS" --json', 'Creating KV namespace');
-      const kvResult = JSON.parse(kvOutput);
-      kvId = kvResult.id;
+      const kvOutput = exec('wrangler kv:namespace create "SESSIONS"', 'Creating KV namespace');
+      // Extract KV ID from output (format: "id = "UUID"")
+      const kvIdMatch = kvOutput.match(/id\s*=\s*"([a-f0-9]+)"/);
+      if (kvIdMatch) {
+        kvId = kvIdMatch[1];
+      } else {
+        throw new Error('Could not extract KV namespace ID from output');
+      }
       
-      const kvPreviewOutput = exec('wrangler kv:namespace create "SESSIONS" --preview --json', 'Creating KV preview namespace');
-      const kvPreviewResult = JSON.parse(kvPreviewOutput);
-      kvPreviewId = kvPreviewResult.id;
+      const kvPreviewOutput = exec('wrangler kv:namespace create "SESSIONS" --preview', 'Creating KV preview namespace');
+      const kvPreviewIdMatch = kvPreviewOutput.match(/id\s*=\s*"([a-f0-9]+)"/);
+      if (kvPreviewIdMatch) {
+        kvPreviewId = kvPreviewIdMatch[1];
+      } else {
+        throw new Error('Could not extract KV preview namespace ID from output');
+      }
       console.log(`✅ KV namespaces created: ${kvId} (prod), ${kvPreviewId} (preview)`);
     }
   } catch (error) {
