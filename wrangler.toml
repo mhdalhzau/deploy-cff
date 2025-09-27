@@ -3,7 +3,7 @@ main = "dist/workers/index.js"
 compatibility_date = "2025-01-01"
 workers_dev = true
 [observability.logs]
-enabled = false
+enabled = true
 
 # Auto-build configuration for seamless deployment
 [build]
